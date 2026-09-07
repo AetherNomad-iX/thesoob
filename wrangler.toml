@@ -2,6 +2,11 @@ name = "thesoob"
 compatibility_date = "2026-09-07"
 workers_dev = true
 
+routes = [
+  { pattern = "thesoob.com", custom_domain = true },
+  { pattern = "www.thesoob.com", custom_domain = true },
+]
+
 [assets]
 directory = "./dist"
 not_found_handling = "single-page-application"
