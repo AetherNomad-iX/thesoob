@@ -145,6 +145,19 @@ function authPopupPlugin(): Plugin {
 // `0.0.0.0:8080` is the live-preview contract — don't change host/port.
 // The dev server starts once `src/router.tsx` and `src/routes/` exist — see
 // AGENTS.md § "First scaffold".
+function isCloudflareTarget() {
+  const preset = process.env.NITRO_PRESET ?? "";
+  return (
+    process.env.CF_PAGES === "1" ||
+    preset === "cloudflare-pages" ||
+    preset === "cloudflare_pages" ||
+    preset === "static" ||
+    preset === "cloudflare-pages-static"
+  );
+}
+
+const cloudflare = isCloudflareTarget();
+
 export default defineConfig(({ command, isPreview }) => ({
   server: {
     host: "0.0.0.0",
@@ -166,22 +179,42 @@ export default defineConfig(({ command, isPreview }) => ({
     // PWA head + ?install=1 tutorial page; runs before Start/Nitro.
     grokPwaPlugin(),
     tailwindcss(),
-    tanstackStart(),
+    tanstackStart(
+      cloudflare
+        ? {
+            spa: { enabled: true },
+            pages: [
+              { path: "/", prerender: { enabled: true } },
+              { path: "/shop", prerender: { enabled: true } },
+              { path: "/station", prerender: { enabled: true } },
+              { path: "/shows", prerender: { enabled: true } },
+              { path: "/about", prerender: { enabled: true } },
+              { path: "/faq", prerender: { enabled: true } },
+              { path: "/policies", prerender: { enabled: true } },
+              { path: "/contact", prerender: { enabled: true } },
+              { path: "/watchlist", prerender: { enabled: true } },
+            ],
+          }
+        : {},
+    ),
     ...(command === "build" || isPreview
-      ? [
-          nitro({
-            preset:
-              process.env.NITRO_PRESET === "cloudflare-pages" ||
-              process.env.NITRO_PRESET === "cloudflare_pages" ||
-              process.env.CF_PAGES === "1"
-                ? "cloudflare-pages"
-                : "vercel",
-            // Auto-registers server/middleware/* (the PWA install page +
-            // manifest + head-tag middleware). Nitro v3 defaults serverDir to
-            // false, so removing this silently unwires /?install=1 on deploys.
-            serverDir: "./server",
-          }),
-        ]
+      ? cloudflare
+        ? [
+            nitro({
+              preset: "static",
+              // Static Pages deploy — no Functions / _worker.js.
+              serverDir: false,
+            }),
+          ]
+        : [
+            nitro({
+              preset: "vercel",
+              // Auto-registers server/middleware/* (the PWA install page +
+              // manifest + head-tag middleware). Nitro v3 defaults serverDir to
+              // false, so removing this silently unwires /?install=1 on deploys.
+              serverDir: "./server",
+            }),
+          ]
       : []),
     viteReact(),
   ],

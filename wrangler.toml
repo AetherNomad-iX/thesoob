@@ -1,9 +1,4 @@
-# Cloudflare Pages — connect this repo and set:
-#   Build command:     npm run build:cloudflare
-#   Build output dir:  dist
-#   Root directory:    /
-# Then attach custom domain thesoob.com
+# Static Cloudflare Pages project (no Workers / Functions).
+# Dashboard: build command `npm run build:cloudflare`, output directory `dist`.
 name = "thesoob"
 compatibility_date = "2026-09-07"
-compatibility_flags = ["nodejs_compat"]
-pages_build_output_dir = "dist"

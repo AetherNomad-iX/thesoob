@@ -8,7 +8,7 @@ Checkout stays on [Whatnot](https://www.whatnot.com/user/thesoob). This repo is 
 
 1. In [Cloudflare Dashboard](https://dash.cloudflare.com) → **Workers & Pages** → **Create** → **Pages** → **Connect to Git**.
 2. Select this repository (`thesoob`).
-3. Build settings (do not pick the Vite preset — it skips the Cloudflare Nitro output):
+3. Build settings (use **None**, not the Vite preset):
 
    | Field | Value |
    | --- | --- |
@@ -17,7 +17,11 @@ Checkout stays on [Whatnot](https://www.whatnot.com/user/thesoob). This repo is 
    | Build command | `npm run build:cloudflare` |
    | Build output directory | `dist` |
    | Root directory | `/` |
-   | Node version | `22` (from `.nvmrc`) |
+   | Node version | `22` |
+
+   Then **Retry deployment** with **Clear build cache**.
+
+   The site is prerendered to static HTML. There is no Cloudflare Worker / Functions bundle — Git-connected Pages only uploads files.
 
 4. Environment variables (optional — the repo already includes build tools in `dependencies`):
 
