@@ -1,15 +1,11 @@
 #!/usr/bin/env node
 /**
- * Cloudflare Pages Git integration is a static file host. Nitro's
- * `cloudflare-pages` preset writes `_worker.js` as a directory, which
- * fails the deploy step. The `static` preset prerenders HTML into
- * `.output/public`, then Vite/Nitro crashes on a known SSR-entry bug
- * AFTER prerender succeeded.
- *
- * This script copies the prerendered tree into `dist/` and strips any
- * Functions artifacts so Pages only uploads HTML, CSS, JS, and images.
+ * Copy Nitro's prerendered `.output/public` into `dist/` for Wrangler
+ * static assets. Strip `_redirects` — Workers `not_found_handling =
+ * single-page-application` already covers SPA fallbacks, and
+ * `/* /index.html 200` is rejected as an infinite loop (code 100324).
  */
-import { cp, readdir, rm, stat, writeFile } from "node:fs/promises";
+import { cp, readdir, rm, stat } from "node:fs/promises";
 import { join, resolve } from "node:path";
 
 const root = process.cwd();
@@ -45,11 +41,14 @@ async function main() {
     console.log(`[cloudflare] copied ${source} → dist/`);
   }
 
-  for (const name of ["_worker.js", "_routes.json", "nitro.json"]) {
+  for (const name of [
+    "_worker.js",
+    "_routes.json",
+    "nitro.json",
+    "_redirects",
+  ]) {
     await rm(join(dist, name), { recursive: true, force: true });
   }
-
-  await writeFile(join(dist, "_redirects"), "/*    /index.html   200\n", "utf8");
 
   const html = [];
   async function walk(dir, prefix = "") {
@@ -66,12 +65,8 @@ async function main() {
     console.error("[cloudflare] dist/index.html missing after copy");
     process.exit(1);
   }
-  if (await exists(join(dist, "_worker.js"))) {
-    console.error("[cloudflare] _worker.js still present — aborting");
-    process.exit(1);
-  }
 
-  console.log(`[cloudflare] static Pages dist ready (${html.length} html files)`);
+  console.log(`[cloudflare] static dist ready (${html.length} html files)`);
 }
 
 main().catch((err) => {

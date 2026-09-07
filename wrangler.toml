@@ -1,6 +1,3 @@
-# Cloudflare Workers Builds runs `npx wrangler deploy` after `npm run build`.
-# [build] command runs again at deploy so dist/ exists even if the dashboard
-# build used the Vercel preset. [assets] is the Worker entry (no main script).
 name = "thesoob"
 compatibility_date = "2026-09-07"
 workers_dev = true
@@ -9,6 +6,3 @@ workers_dev = true
 directory = "./dist"
 not_found_handling = "single-page-application"
 html_handling = "auto-trailing-slash"
-
-[build]
-command = "npm run build:cloudflare"
