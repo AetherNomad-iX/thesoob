@@ -1,26 +1,25 @@
 #!/usr/bin/env node
 /**
- * Production build entry. Cloudflare Pages always sets CF_PAGES=1, even
- * when the dashboard still has the Vite default `npm run build`.
+ * Production build entry.
+ * Cloudflare Workers Builds runs `npm run build` then `npx wrangler deploy`
+ * and does not set CF_PAGES (that's Pages-only).
  */
 import { spawnSync } from "node:child_process";
+import { isCloudflareBuild } from "./is-cloudflare-build.mjs";
 
-const cloudflare =
-  process.env.CF_PAGES === "1" ||
-  process.env.NITRO_PRESET === "static" ||
-  process.env.NITRO_PRESET === "cloudflare-pages" ||
-  process.env.NITRO_PRESET === "cloudflare_pages";
-
-function run(args) {
+function run(args, extraEnv = {}) {
   const result = spawnSync(process.execPath, args, {
     stdio: "inherit",
-    env: process.env,
+    env: { ...process.env, ...extraEnv },
   });
   process.exit(result.status ?? 1);
 }
 
-if (cloudflare) {
-  run(["scripts/build-cloudflare.mjs"]);
+if (isCloudflareBuild()) {
+  run(["scripts/build-cloudflare.mjs"], {
+    CF_PAGES: "1",
+    NITRO_PRESET: "static",
+  });
 }
 
 const build = spawnSync(

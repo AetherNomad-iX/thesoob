@@ -4,47 +4,22 @@ Official companion site for **[TheSoob.com](https://thesoob.com)** — live Pok�
 
 Checkout stays on [Whatnot](https://www.whatnot.com/user/thesoob). This repo is the catalog, show board, and Station tab.
 
-## Deploy on Cloudflare Pages
+## Deploy on Cloudflare
 
-1. In [Cloudflare Dashboard](https://dash.cloudflare.com) → **Workers & Pages** → **Create** → **Pages** → **Connect to Git**.
-2. Select this repository (`thesoob`).
-3. Build settings (use **None**, not the Vite preset):
+This project is set up for **Workers Builds** (Connect to Git → Worker). Cloudflare runs `npm run build` then `npx wrangler deploy`.
 
-   | Field | Value |
-   | --- | --- |
-   | Framework preset | **None** |
-   | Install command | `npm ci` |
-   | Build command | `npm run build:cloudflare` |
-   | Build output directory | `dist` |
-   | Root directory | `/` |
-   | Node version | `22` |
+`wrangler.toml` points Wrangler at the static `dist/` folder. No Worker script — HTML, CSS, JS, and images only.
 
-   Then **Retry deployment** with **Clear build cache**.
+If Git is already connected, push to `main` (or **Retry deployment**). You do not need to change the dashboard build command.
 
-   The site is prerendered to static HTML. There is no Cloudflare Worker / Functions bundle — Git-connected Pages only uploads files.
+Custom domain: Workers & Pages → thesoob → **Custom domains** → add `thesoob.com` and `www`.
 
-4. Environment variables (optional — the repo already includes build tools in `dependencies`):
-
-   | Name | Value |
-   | --- | --- |
-   | `NODE_VERSION` | `22` |
-
-5. **Custom domain:** add `thesoob.com` (and `www`) in Pages → Custom domains.
-
-Cloudflare sets `CF_PAGES=1` on the build. The Vite config switches Nitro to the `cloudflare-pages` preset automatically.
-
-If Git integration is already connected, retry the latest deployment after this commit. Cache can be stale — use **Retry deployment** with **Clear build cache** if it still fails.
-
-### GitHub Action (optional)
-
-Add repo secrets `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID`. Pushes to `main` will build and `wrangler pages deploy dist`.
-
-Local Cloudflare build:
+Local:
 
 ```bash
 npm ci
 npm run build:cloudflare
-npx wrangler pages deploy dist --project-name=thesoob
+npx wrangler deploy
 ```
 
 ## Station tab
