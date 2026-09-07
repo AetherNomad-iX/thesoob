@@ -12,7 +12,8 @@ Checkout stays on [Whatnot](https://www.whatnot.com/user/thesoob). This repo is 
 
    | Field | Value |
    | --- | --- |
-   | Framework preset | None (or Vite) |
+   | Framework preset | None |
+   | Install command | `npm ci` |
    | Build command | `npm run build:cloudflare` |
    | Build output directory | `dist` |
    | Root directory | `/` |
