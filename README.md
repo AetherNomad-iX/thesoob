@@ -8,27 +8,39 @@ Checkout stays on [Whatnot](https://www.whatnot.com/user/thesoob). This repo is 
 
 1. In [Cloudflare Dashboard](https://dash.cloudflare.com) → **Workers & Pages** → **Create** → **Pages** → **Connect to Git**.
 2. Select this repository (`thesoob`).
-3. Build settings:
+3. Build settings (do not pick the Vite preset — it skips the Cloudflare Nitro output):
 
    | Field | Value |
    | --- | --- |
-   | Framework preset | None |
+   | Framework preset | **None** |
    | Install command | `npm ci` |
    | Build command | `npm run build:cloudflare` |
    | Build output directory | `dist` |
    | Root directory | `/` |
-   | Node version | `22` |
+   | Node version | `22` (from `.nvmrc`) |
 
-4. **Custom domain:** add `thesoob.com` (and `www`) in Pages → Custom domains. Point the DNS at Cloudflare.
+4. Environment variables (optional — the repo already includes build tools in `dependencies`):
+
+   | Name | Value |
+   | --- | --- |
+   | `NODE_VERSION` | `22` |
+
+5. **Custom domain:** add `thesoob.com` (and `www`) in Pages → Custom domains.
 
 Cloudflare sets `CF_PAGES=1` on the build. The Vite config switches Nitro to the `cloudflare-pages` preset automatically.
+
+If Git integration is already connected, retry the latest deployment after this commit. Cache can be stale — use **Retry deployment** with **Clear build cache** if it still fails.
+
+### GitHub Action (optional)
+
+Add repo secrets `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID`. Pushes to `main` will build and `wrangler pages deploy dist`.
 
 Local Cloudflare build:
 
 ```bash
-npm install
+npm ci
 npm run build:cloudflare
-npx wrangler pages dev dist
+npx wrangler pages deploy dist --project-name=thesoob
 ```
 
 ## Station tab
